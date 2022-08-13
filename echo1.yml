@@ -1,4 +1,3 @@
----
   - hosts: centos7
     tasks:
       - name: Echo1 message
