@@ -1,0 +1,33 @@
+- hosts: 
+    rhdgrp01
+  gather_facts: false
+
+  vars:
+    first_login_password: "kwsnty01"
+    login_user: "x261243"
+    login_host:
+    new_password: "Kauxopt18"
+    ssh_common_args: "" 
+
+  tasks:
+    - name: "Check if host is reachable"
+      wait_for:
+        timeout: 0
+      register: connect_rs
+      ignore_unreachable: yes
+
+    - when: connect_rs is unreachable
+      name: "Try first login and change the password"
+      delegate_to: localhost
+      expect:
+        command: sshpass -p {{ first_login_password }} ssh {{ ssh_common_args }} {{ login_user }}@{{ inventory_hostname }}
+        #command: sshpass -p {{ first_login_password }} ssh {{ ssh_common_args }} {{ login_user }}@{{ ansible_ssh_host }}
+        timeout: 10
+        responses:
+          "Current password:": "{{ first_login_password }}"
+          "New password:": "{{ new_password }}"
+          "Retype new password:": "{{ new_password }}"
+
+
+    - name: "Gather facts about host"
+      setup:
